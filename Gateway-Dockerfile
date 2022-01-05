@@ -1,0 +1,4 @@
+FROM openjdk:11.0.13-jre-slim
+ADD /jars/core-0.1.0.jar .
+ADD /jars/aline-gateway-0.0.1-SNAPSHOT.jar .
+CMD [ "java", "-jar", "aline-gateway-0.0.1-SNAPSHOT.jar" ]

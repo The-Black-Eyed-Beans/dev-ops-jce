@@ -1,0 +1,4 @@
+FROM openjdk:11.0.13-jre-slim
+ADD /jars/core-0.1.0.jar .
+ADD /jars/user-microservice-0.1.0.jar .
+CMD [ "java", "-jar", "user-microservice-0.1.0.jar" ]
