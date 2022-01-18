@@ -3,53 +3,53 @@ services:
   database:
     image: juliuscesarestrope/aline-db-jce
     env_file:
-      - /envs/database.env
+      - ./envs/database.env
     ports:
     - "3310:3306"
   bank-microservice:
     image: juliuscesarestrope/bank-jce
     env_file: 
-      - /envs/bank.env
-      - /envs/common.env
+      - ./envs/bank.env
+      - ./envs/common.env
     ports:
       - "8083:8083"
     depends_on:
       - database
-    restart: on_failure:2
+    # restart: on_failure:2
   transaction-microservice:
     image: juliuscesarestrope/transaction-jce
     env_file: 
-      - /envs/transaction.env
-      - /envs/common.env
+      - ./envs/transaction.env
+      - ./envs/common.env
     ports:
       - "8073:8073"
     depends_on:
       - database
-    restart: on_failure:2
+    # restart: on_failure:2
   underwriter-microservice:
     image: juliuscesarestrope/underwriter-jce
     env_file: 
-      - /envs/underwriter.env
-      - /envs/common.env
+      - ./envs/underwriter.env
+      - ./envs/common.env
     ports:
       - "8071:8071"
     depends_on:
       - database
-    restart: on_failure:2
+    # restart: on_failure:2
   user-microservice:
     image: juliuscesarestrope/user-jce
     env_file: 
-      - /envs/user.env
-      - /envs/common.env
+      - ./envs/user.env
+      - ./envs/common.env
     ports:
       - "8070:8070"
     depends_on:
       - database
-    restart: on_failure:2
+    # restart: on_failure:2
   gateway:
     image: juliuscesarestrope/gateway-jce
     env_file:
-      - /envs/gateway.env
+      - ./envs/gateway.env
     ports:
       - "8080:8080"
     depends_on:
@@ -60,13 +60,13 @@ services:
   admin-portal:
     image: juliuscesarestrope/admin-portal-jce
     env_file:
-      - /envs/admin.env
+      - ./envs/admin.env
     ports:
       - "3007:80"
   landing-portal:
     image: juliuscesarestrope/landing-portal-jce
     env_file:
-      - /envs/landing-portal.env
+      - ./envs/landing-portal.env
     ports:
       - "3000:80"
   member-dashboard:
