@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank-microservice-deployment
+  labels:
+    app: aline-financial-banking  # Use environment variable to set this
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aline-financial-banking  # Use environment variable to set this
+  template:
+    metadata:
+      labels:
+        app: aline-financial-banking  # Use environment variable to set this
+    spec:
+      containers:  # Set resource limit
+      - name: bank-microservice
+        image: juliuscesarestrope/bank-jce  # Refactor to pull from ECR
+        ports:
+          - name: bank
+            containerPort: 8083
+        env:
+        - name: APP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: aline-configmap
+              key: BANK_PORT
+        envFrom:
+        - secretRef:
+            name: mysqldb-secret
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: bank-microservice-service
+# spec:
+#   selector:
+#     app: aline-financial-banking
+#   ports:
+#     - port: 8083
+#       targetPort: 8083
+      
