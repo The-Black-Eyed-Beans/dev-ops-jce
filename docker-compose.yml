@@ -15,7 +15,7 @@ services:
       - "8083:8083"
     depends_on:
       - database
-    # restart: on_failure:2
+    restart: on-failure:2
   transaction-microservice:
     image: juliuscesarestrope/transaction-jce
     env_file: 
@@ -25,7 +25,7 @@ services:
       - "8073:8073"
     depends_on:
       - database
-    # restart: on_failure:2
+    restart: on-failure:2
   underwriter-microservice:
     image: juliuscesarestrope/underwriter-jce
     env_file: 
@@ -35,7 +35,7 @@ services:
       - "8071:8071"
     depends_on:
       - database
-    # restart: on_failure:2
+    restart: on-failure:2
   user-microservice:
     image: juliuscesarestrope/user-jce
     env_file: 
@@ -45,7 +45,7 @@ services:
       - "8070:8070"
     depends_on:
       - database
-    # restart: on_failure:2
+    restart: on-failure:2
   gateway:
     image: juliuscesarestrope/gateway-jce
     env_file:
