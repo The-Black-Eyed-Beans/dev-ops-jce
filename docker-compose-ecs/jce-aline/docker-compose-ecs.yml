@@ -1,0 +1,85 @@
+version: '3'
+services:
+  account-microservice:
+    # image: ${AWS_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/account-microservice # Use Environment Variables
+    image: 086620157175.dkr.ecr.us-east-1.amazonaws.com/account-microservice
+    env_file: 
+      - ./envs/account.env
+      - ./envs/common.env
+    ports:
+      - "8072:8072"
+    # depends_on: # Incompatible with ecs
+    #   - database
+    # restart: on-failure:2 
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  bank-microservice:
+    image: 086620157175.dkr.ecr.us-east-1.amazonaws.com/bank-microservice
+    env_file: 
+      - ./envs/bank.env
+      - ./envs/common.env
+    ports:
+      - "8083:8083"
+    # depends_on:
+    #   - database
+    # restart: on-failure:2
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  transaction-microservice:
+    image: 086620157175.dkr.ecr.us-east-1.amazonaws.com/transaction-microservice
+    env_file: 
+      - ./envs/transaction.env
+      - ./envs/common.env
+    ports:
+      - "8073:8073"
+    # depends_on:
+    #   - database
+    # restart: on-failure:2
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  underwriter-microservice:
+    image: 086620157175.dkr.ecr.us-east-1.amazonaws.com/underwriter-microservice
+    env_file: 
+      - ./envs/underwriter.env
+      - ./envs/common.env
+    ports:
+      - "8071:8071"
+    # depends_on:
+    #   - database
+    # restart: on-failure:2
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  user-microservice:
+    image: 086620157175.dkr.ecr.us-east-1.amazonaws.com/user-microservice
+    env_file: 
+      - ./envs/user.env
+      - ./envs/common.env
+    ports:
+      - "8070:8070"
+    # depends_on:
+    #   - database
+    # restart: on-failure:2
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  gateway:
+    image: 086620157175.dkr.ecr.us-east-1.amazonaws.com/gateway
+    env_file:
+      - ./envs/gateway.env
+    ports:
+      - "8080:8080"
+    # depends_on:
+    #   - account-microservice
+    #   - bank-microservice
+    #   - transaction-microservice
+    #   - underwriter-microservice
+    #   - user-microservice
