@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-deployment
+  labels:
+    app: aline-financial-banking  # Use environment variable to set this
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aline-financial-banking  # Use environment variable to set this
+  template:
+    metadata:
+      labels:
+        app: aline-financial-banking  # Use environment variable to set this
+    spec:
+      containers:  # Set resource limit
+      - name: gateway
+        image: juliuscesarestrope/gateway-jce  # Refactor to pull from ECR
+        ports:
+          - containerPort: 8080
+        env:
+        - name: APP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: aline-configmap
+              key: GATEWAY_PORT
+        - name: APP_SERVICE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: aline-configmap
+              key: APP_SERVICE_HOST
+        envFrom:
+        - secretRef:
+            name: mysqldb-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+spec:
+  type: NodePort
+  selector:
+    app: aline-financial-banking
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30000
