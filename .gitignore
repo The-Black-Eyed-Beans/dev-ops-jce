@@ -1,0 +1,12 @@
+# Folders
+envs/
+jars/
+repos/
+resources/
+
+# File endings
+*.env
+*.log
+*.config
+*configmap.yml
+*secret.yml
