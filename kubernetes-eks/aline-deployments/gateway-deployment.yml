@@ -16,7 +16,7 @@ spec:
     spec:
       containers:  # Set resource limit
       - name: gateway
-        image: juliuscesarestrope/gateway-jce  # Refactor to pull from ECR
+        image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/gateway
         ports:
           - containerPort: 8080
         env:

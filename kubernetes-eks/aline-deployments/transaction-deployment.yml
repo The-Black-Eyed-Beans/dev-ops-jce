@@ -16,7 +16,7 @@ spec:
     spec:
       containers:  # Set resource limit
       - name: transaction-microservice
-        image: juliuscesarestrope/transaction-jce  # Refactor to pull from ECR
+        image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/transaction-microservice
         ports:
           - name: transaction
             containerPort: 8073
@@ -29,14 +29,3 @@ spec:
         envFrom:
         - secretRef:
             name: mysqldb-secret
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: transaction-microservice-service
-# spec:
-#   selector:
-#     app: aline-financial-banking
-#   ports:
-#     - port: 8073
-#       targetPort: 8073
