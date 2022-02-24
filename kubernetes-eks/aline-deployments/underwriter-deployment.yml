@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: underwriter-microservice-deployment
+  labels:
+    app: aline-financial-banking  # Use environment variable to set this
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aline-financial-banking  # Use environment variable to set this
+  template:
+    metadata:
+      labels:
+        app: aline-financial-banking  # Use environment variable to set this
+    spec:
+      containers:  # Set resource limit
+      - name: underwriter-microservice
+        image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/underwriter-microservice
+        ports:
+          - name: underwriter
+            containerPort: 8071
+        env:
+        - name: APP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: aline-configmap
+              key: UNDERWRITER_PORT
+        envFrom:
+        - secretRef:
+            name: mysqldb-secret

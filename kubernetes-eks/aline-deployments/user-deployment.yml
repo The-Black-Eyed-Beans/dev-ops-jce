@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-microservice-deployment
+  labels:
+    app: aline-financial-banking  # Use environment variable to set this
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aline-financial-banking  # Use environment variable to set this
+  template:
+    metadata:
+      labels:
+        app: aline-financial-banking  # Use environment variable to set this
+    spec:
+      containers:  # Set resource limit
+      - name: user-microservice
+        image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/user-microservice
+        ports:
+          - name: user
+            containerPort: 8070
+        env:
+        - name: APP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: aline-configmap
+              key: USER_PORT
+        envFrom:
+        - secretRef:
+            name: mysqldb-secret
