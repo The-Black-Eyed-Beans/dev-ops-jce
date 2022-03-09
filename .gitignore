@@ -5,6 +5,7 @@ repos/
 resources/
 
 # File endings
+*.gitignore
 *.env
 *.log
 *.config
