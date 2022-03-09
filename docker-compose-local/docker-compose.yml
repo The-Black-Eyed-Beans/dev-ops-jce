@@ -1,7 +1,13 @@
 version: '3'
 services:
+  database:
+    image: juliuscesarestrope/aline-db-jce
+    env_file:
+      - ./envs/database.env
+    ports:
+    - "3310:3306"
   bank-microservice:
-    image: ${AWS_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/bank-microservice
+    image: juliuscesarestrope/bank-jce
     env_file: 
       - ./envs/bank.env
       - ./envs/common.env
@@ -11,7 +17,7 @@ services:
       - database
     restart: on-failure:2
   transaction-microservice:
-    image: ${AWS_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/transaction-microservice
+    image: juliuscesarestrope/transaction-jce
     env_file: 
       - ./envs/transaction.env
       - ./envs/common.env
@@ -21,7 +27,7 @@ services:
       - database
     restart: on-failure:2
   underwriter-microservice:
-    image: ${AWS_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/underwriter-microservice
+    image: juliuscesarestrope/underwriter-jce
     env_file: 
       - ./envs/underwriter.env
       - ./envs/common.env
@@ -31,7 +37,7 @@ services:
       - database
     restart: on-failure:2
   user-microservice:
-    image: ${AWS_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/user-microservice
+    image: juliuscesarestrope/user-jce
     env_file: 
       - ./envs/user.env
       - ./envs/common.env
@@ -41,7 +47,7 @@ services:
       - database
     restart: on-failure:2
   gateway:
-    image: ${AWS_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/gateway
+    image: juliuscesarestrope/gateway-jce
     env_file:
       - ./envs/gateway.env
     ports:
@@ -51,3 +57,19 @@ services:
       - transaction-microservice
       - underwriter-microservice
       - user-microservice
+  admin-portal:
+    image: juliuscesarestrope/admin-portal-jce
+    env_file:
+      - ./envs/admin.env
+    ports:
+      - "3007:80"
+  landing-portal:
+    image: juliuscesarestrope/landing-portal-jce
+    env_file:
+      - ./envs/landing-portal.env
+    ports:
+      - "3000:80"
+  member-dashboard:
+    image: juliuscesarestrope/member-dashboard-jce
+    ports:
+      - "4200:80"
