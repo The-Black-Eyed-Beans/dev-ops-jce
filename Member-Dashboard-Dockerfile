@@ -1,2 +1,0 @@
-FROM nginx
-ADD /repos/member-dashboard-jce/dist/aline-member-dashboard /usr/share/nginx/html

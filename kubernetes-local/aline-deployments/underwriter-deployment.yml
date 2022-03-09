@@ -16,7 +16,7 @@ spec:
     spec:
       containers:  # Set resource limit
       - name: underwriter-microservice
-        image: juliuscesarestrope/underwriter-jce  # Refactor to pull from ECR
+        image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/underwriter-microservice
         ports:
           - name: underwriter
             containerPort: 8071
@@ -29,14 +29,3 @@ spec:
         envFrom:
         - secretRef:
             name: mysqldb-secret
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: underwriter-microservice-service
-# spec:
-#   selector:
-#     app: aline-financial-banking
-#   ports:
-#     - port: 8071
-#       targetPort: 8071

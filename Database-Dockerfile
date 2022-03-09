@@ -1,4 +1,0 @@
-FROM mysql:8.0
-
-ADD /resources/aline-db.sql /docker-entrypoint-initdb.d
-

@@ -7,9 +7,6 @@ services:
       - ./envs/common.env
     ports:
       - "8072:8072"
-    # depends_on: # Incompatible with ecs
-    #   - database
-    # restart: on-failure:2 
     deploy:
       replicas: 1
       restart_policy:
@@ -21,9 +18,6 @@ services:
       - ./envs/common.env
     ports:
       - "8083:8083"
-    # depends_on:
-    #   - database
-    # restart: on-failure:2
     deploy:
       replicas: 1
       restart_policy:
@@ -35,9 +29,6 @@ services:
       - ./envs/common.env
     ports:
       - "8073:8073"
-    # depends_on:
-    #   - database
-    # restart: on-failure:2
     deploy:
       replicas: 1
       restart_policy:
@@ -49,9 +40,6 @@ services:
       - ./envs/common.env
     ports:
       - "8071:8071"
-    # depends_on:
-    #   - database
-    # restart: on-failure:2
     deploy:
       replicas: 1
       restart_policy:
@@ -63,9 +51,6 @@ services:
       - ./envs/common.env
     ports:
       - "8070:8070"
-    # depends_on:
-    #   - database
-    # restart: on-failure:2
     deploy:
       replicas: 1
       restart_policy:
@@ -76,9 +61,3 @@ services:
       - ./envs/gateway.env
     ports:
       - "8080:8080"
-    # depends_on:
-    #   - account-microservice
-    #   - bank-microservice
-    #   - transaction-microservice
-    #   - underwriter-microservice
-    #   - user-microservice
