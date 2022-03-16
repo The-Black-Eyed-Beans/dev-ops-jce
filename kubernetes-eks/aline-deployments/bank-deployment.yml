@@ -3,18 +3,18 @@ kind: Deployment
 metadata:
   name: bank-microservice-deployment
   labels:
-    app: aline-financial-banking  # Use environment variable to set this
+    app: aline-financial-banking  
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aline-financial-banking  # Use environment variable to set this
+      app: aline-financial-banking  
   template:
     metadata:
       labels:
-        app: aline-financial-banking  # Use environment variable to set this
+        app: aline-financial-banking  
     spec:
-      containers:  # Set resource limit
+      containers:  
       - name: bank-microservice
         image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/bank-microservice
         ports:
