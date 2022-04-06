@@ -1,2 +1,0 @@
-FROM nginx
-ADD /repos/aline-landing-portal-jce/build/ /usr/share/nginx/html

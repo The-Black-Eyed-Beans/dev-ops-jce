@@ -3,18 +3,25 @@ kind: Deployment
 metadata:
   name: user-microservice-deployment
   labels:
-    app: aline-financial-banking  # Use environment variable to set this
+    app: aline-financial-banking 
+    role: backend
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: aline-financial-banking  # Use environment variable to set this
+      app: aline-financial-banking 
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
   template:
     metadata:
       labels:
-        app: aline-financial-banking  # Use environment variable to set this
+        app: aline-financial-banking 
+        role: backend
     spec:
-      containers:  # Set resource limit
+      containers:
       - name: user-microservice
         image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/user-microservice
         ports:
@@ -29,3 +36,10 @@ spec:
         envFrom:
         - secretRef:
             name: mysqldb-secret
+        resources:
+          requests:
+            memory: ${USER_MEMORY_REQUEST}
+            cpu: ${USER_CPU_REQUEST}
+          limits:
+            memory: ${USER_MEMORY_LIMIT}
+            cpu: ${USER_CPU_LIMIT}

@@ -3,18 +3,23 @@ kind: Deployment
 metadata:
   name: underwriter-microservice-deployment
   labels:
-    app: aline-financial-banking  # Use environment variable to set this
+    app: aline-financial-banking 
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: aline-financial-banking  # Use environment variable to set this
+      app: aline-financial-banking 
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
   template:
     metadata:
       labels:
-        app: aline-financial-banking  # Use environment variable to set this
+        app: aline-financial-banking 
     spec:
-      containers:  # Set resource limit
+      containers: 
       - name: underwriter-microservice
         image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/underwriter-microservice
         ports:
@@ -29,3 +34,10 @@ spec:
         envFrom:
         - secretRef:
             name: mysqldb-secret
+        resources:
+          requests:
+            memory: ${UNDERWRITER_MEMORY_REQUEST}
+            cpu: ${UNDERWRITER_CPU_REQUEST}
+          limits:
+            memory: ${UNDERWRITER_MEMORY_LIMIT}
+            cpu: ${UNDERWRITER_CPU_LIMIT}
