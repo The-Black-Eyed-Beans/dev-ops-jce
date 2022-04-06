@@ -16,7 +16,7 @@ spec:
     spec:
       containers:  # Set resource limit
       - name: user-microservice
-        image: juliuscesarestrope/user-jce  # Refactor to pull from ECR
+        image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/user-microservice
         ports:
           - name: user
             containerPort: 8070
@@ -29,14 +29,3 @@ spec:
         envFrom:
         - secretRef:
             name: mysqldb-secret
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: user-microservice-service
-# spec:
-#   selector:
-#     app: aline-financial-banking
-#   ports:
-#     - port: 8070
-#       targetPort: 8070
