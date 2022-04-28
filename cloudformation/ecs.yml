@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  EnvType:
+    Description: The environment that the stack is being deployed to
+    Type: String
+    AllowedValues:
+      - production
+      - dev
+      - test
+  ECSClusterName:
+    Description: The name of the ECS Cluster
+    Default: "JCE_ECS_Cluster_Cloudformation"
+    Type: String
+
+Resources:
+  ECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: !Ref ECSClusterName
+      CapacityProviders:
+        - FARGATE
+      DefaultCapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+      Tags:
+        - Key: Name
+          Value: !Ref ECSClusterName
+        - Key: Stack
+          Value: !Ref EnvType

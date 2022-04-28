@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "The root stack deployment for an EKS cluster using Cloudformation"
+Parameters:
+  EnvType:
+    Description: The environment that the stack is being deployed to
+    Type: String
+    AllowedValues:
+      - production
+      - dev
+      - test
+  S3BucketName:
+    Description: The name of the S3 Bucket that the networking and EKS Cloudformation templates are kept
+    Type: String
+  VPCCIDR:
+    Description: The CIDR Block being used for the VPC
+    Default: "192.0.0.0/16"
+    Type: String
+  PrivateSubnet1CIDR:
+    Description: The CIDR Block being used for PrivateSubnet1
+    Default: 192.0.0.0/24
+    Type: String
+  PrivateSubnet2CIDR:
+    Description: The CIDR Block being used for PrivateSubnet2
+    Default: 192.0.1.0/24
+    Type: String
+  PublicSubnet1CIDR:
+    Description: The CIDR Block being used for PublicSubnet1
+    Default: 192.0.2.0/24
+    Type: String
+  PublicSubnet2CIDR:
+    Description: The CIDR Block being used for PublicSubnet1
+    Default: 192.0.3.0/24
+    Type: String
+  EKSClusterName:
+    Description: The name of the EKS Cluster
+    Default: "JCE_EKS_Cluster_Cloudformation"
+    Type: String
+
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://${S3BucketName}.s3.us-west-2.amazonaws.com/networking.yml"
+      TimeoutInMinutes: 10
+      Parameters:
+        EnvType: !Ref EnvType
+        VPCCIDR: !Ref VPCCIDR
+        PrivateSubnet1CIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
+        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
+        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+
+  EKSStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://${S3BucketName}.s3.us-west-2.amazonaws.com/eks.yml"
+      TimeoutInMinutes: 30
+      Parameters:
+        EnvType: !Ref EnvType
+        EKSClusterName: !Ref EKSClusterName
+        PrivateSubnet1ID: !GetAtt NetworkStack.Outputs.PrivateSubnet1ID
+        PrivateSubnet2ID: !GetAtt NetworkStack.Outputs.PrivateSubnet2ID
