@@ -5,7 +5,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: aline-financial-banking
+    role: backend
   ports:
     - name: bank
       protocol: TCP

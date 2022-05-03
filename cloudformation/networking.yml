@@ -1,0 +1,330 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  EnvType:
+    Description: The environment that the stack is being deployed to
+    Type: String
+    AllowedValues:
+      - production
+      - dev
+      - test
+  VPCCIDR:
+    Description: The CIDR Block being used for the VPC
+    Default: "192.0.0.0/16"
+    Type: String
+  PrivateSubnet1CIDR:
+    Description: The CIDR Block being used for PrivateSubnet1
+    Default: 192.0.0.0/24
+    Type: String
+  PrivateSubnet2CIDR:
+    Description: The CIDR Block being used for PrivateSubnet2
+    Default: 192.0.1.0/24
+    Type: String
+  PublicSubnet1CIDR:
+    Description: The CIDR Block being used for PublicSubnet1
+    Default: 192.0.2.0/24
+    Type: String
+  PublicSubnet2CIDR:
+    Description: The CIDR Block being used for PublicSubnet1
+    Default: 192.0.3.0/24
+    Type: String
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: !Ref VPCCIDR
+      Tags: 
+        - Key: Name
+          Value: "JCE_Cloudformation_VPC"
+        - Key: Stack
+          Value: !Ref EnvType
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: !Ref PrivateSubnet1CIDR
+      AvailabilityZone: 
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Private_Subnet_1"
+      - Key: Stack
+        Value: !Ref EnvType
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      AvailabilityZone: 
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Private_Subnet_2"
+      - Key: Stack
+        Value: !Ref EnvType
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: !Ref PublicSubnet1CIDR
+      AvailabilityZone: 
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Public_Subnet_1"
+      - Key: Stack
+        Value: !Ref EnvType
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: !Ref PublicSubnet2CIDR
+      AvailabilityZone: 
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Public_Subnet_2"
+      - Key: Stack
+        Value: !Ref EnvType
+
+  ElasticIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Elastic_IP_1"
+      - Key: Stack
+        Value: !Ref EnvType
+
+  ElasticIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Elastic_IP_2"
+      - Key: Stack
+        Value: !Ref EnvType
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Internet_Gateway"
+      - Key: Stack
+        Value: !Ref EnvType
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  NATGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+          Fn::GetAtt:
+          - ElasticIP1
+          - AllocationId
+      SubnetId:
+          Ref: PublicSubnet1
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_NAT_Gateway_1"
+      - Key: stack
+        Value: !Ref EnvType
+
+  NATGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+          Fn::GetAtt:
+          - ElasticIP2
+          - AllocationId
+      SubnetId:
+          Ref: PublicSubnet2
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_NAT_Gateway_2"
+      - Key: stack
+        Value: !Ref EnvType
+
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Private_Route_Table_1"
+      - Key: stack
+        Value: !Ref EnvType
+
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Private_Route_Table_2"
+      - Key: stack
+        Value: !Ref EnvType
+
+  PublicRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Public_Route_Table_1"
+      - Key: stack
+        Value: !Ref EnvType
+
+  PublicRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: "JCE_Cloudformation_Public_Route_Table_2"
+      - Key: stack
+        Value: !Ref EnvType
+
+  PrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+          Ref: PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+          Ref: NATGateway1
+
+  PrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+          Ref: PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+          Ref: NATGateway2
+
+  PublicRoute1:
+    Type: AWS::EC2::Route
+    DependsOn: NATGateway1
+    Properties:
+      RouteTableId:
+          Ref: PublicRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+          Ref: InternetGateway
+
+  PublicRoute2:
+    Type: AWS::EC2::Route
+    DependsOn: NATGateway2
+    Properties:
+      RouteTableId:
+          Ref: PublicRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+          Ref: InternetGateway
+
+  PrivateRouteTable1Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      SubnetId:
+        Ref: PrivateSubnet1
+      RouteTableId: 
+        Ref: PrivateRouteTable1
+
+  PrivateRouteTable2Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      SubnetId:
+        Ref: PrivateSubnet2
+      RouteTableId: 
+        Ref: PrivateRouteTable2
+
+  PublicRouteTable1Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      SubnetId:
+        Ref: PublicSubnet1
+      RouteTableId: 
+        Ref: PublicRouteTable1
+
+  PublicRouteTable2Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      SubnetId:
+        Ref: PublicSubnet2
+      RouteTableId: 
+        Ref: PublicRouteTable2
+
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow gateway port ingress
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 30000
+          ToPort: 30000
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: "-1"
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      IpAddressType: ipv4
+      Name: "JCE-Cloudformation-Load-Balancer"
+      Scheme: internet-facing
+      SecurityGroups: 
+        - !Ref LoadBalancerSecurityGroup
+      Subnets: 
+        - !GetAtt PublicSubnet1.SubnetId
+        - !GetAtt PublicSubnet2.SubnetId
+      Tags:
+      - Key: Name
+        Value: "JCE-Cloudformation-Load-Balancer"
+      - Key: stack
+        Value: !Ref EnvType
+      Type: application
+
+Outputs:
+  PrivateSubnet1ID:
+    Description: The ID of PrivateSubnet1
+    Value: !Ref PrivateSubnet1
+  PrivateSubnet2ID:
+    Description: The ID of PrivateSubnet2
+    Value: !Ref PrivateSubnet2
+  PublicSubnet1ID:
+    Description: The ID of PublicSubnet1
+    Value: !Ref PublicSubnet1
+  PublicSubnet2ID:
+    Description: The ID of PublicSubnet2
+    Value: !Ref PublicSubnet2

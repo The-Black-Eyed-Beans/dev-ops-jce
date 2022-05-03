@@ -1,0 +1,100 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  EnvType:
+    Description: The environment that the stack is being deployed to
+    Type: String
+    AllowedValues:
+      - production
+      - dev
+      - test
+  EKSClusterName:
+    Description: The name of the EKS Cluster
+    Default: "JCE_EKS_Cluster_Cloudformation"
+    Type: String
+  PrivateSubnet1ID:
+    Description: The ID of Private Subnet 1
+    Type: String
+  PrivateSubnet2ID:
+    Description: The ID of Private Subnet 2
+    Type: String
+
+Resources:
+  EKSIAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - eks.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+      Tags: 
+        - Key: Name
+          Value: "JCE_EKS_Cluster_IAM_Role_Cloudformation"
+        - Key: Stack
+          Value: !Ref EnvType
+
+  EKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: !Ref EKSClusterName
+      Version: "1.20"
+      RoleArn: !GetAtt EKSIAMRole.Arn
+      ResourcesVpcConfig:
+        SubnetIds:
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+        EndpointPublicAccess: true
+        EndpointPrivateAccess: true
+        PublicAccessCidrs: [ "0.0.0.0/0" ]
+      Tags:
+        - Key: Name
+          Value: !Ref EKSClusterName
+        - Key: Stack
+          Value: !Ref EnvType
+
+  EKSNodegroupIAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - eks.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+        - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+      Tags: 
+        - Key: Name
+          Value: "JCE_EKS_Cluster_IAM_Role_Cloudformation"
+        - Key: Stack
+          Value: !Ref EnvType
+
+  EKSNodegroup:
+    Type: 'AWS::EKS::Nodegroup'
+    Properties:
+      ClusterName: !Ref EKSCluster
+      NodeRole: !GetAtt EKSNodegroupIAMRole.Arn
+      ScalingConfig:
+        MinSize: 2
+        DesiredSize: 2
+        MaxSize: 4
+      Labels:
+        Name: !Sub '${EKSClusterName}_Nodegroup'
+        Stack: !Ref EnvType
+      Subnets:
+        - !Ref PrivateSubnet1ID
+        - !Ref PrivateSubnet2ID

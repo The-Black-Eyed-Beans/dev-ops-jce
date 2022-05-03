@@ -3,18 +3,25 @@ kind: Deployment
 metadata:
   name: gateway-deployment
   labels:
-    app: aline-financial-banking  # Use environment variable to set this
+    app: aline-financial-banking  
+    role: gateway
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: aline-financial-banking  # Use environment variable to set this
+      app: aline-financial-banking  
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
   template:
     metadata:
       labels:
-        app: aline-financial-banking  # Use environment variable to set this
+        app: aline-financial-banking  
+        role: gateway
     spec:
-      containers:  # Set resource limit
+      containers:  
       - name: gateway
         image: ${AWS_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com/gateway
         ports:
@@ -33,6 +40,13 @@ spec:
         envFrom:
         - secretRef:
             name: mysqldb-secret
+        resources:
+          requests:
+            memory: ${GATEWAY_MEMORY_REQUEST}
+            cpu: ${GATEWAY_CPU_REQUEST}
+          limits:
+            memory: ${GATEWAY_MEMORY_LIMIT}
+            cpu: ${GATEWAY_CPU_LIMIT}
 ---
 apiVersion: v1
 kind: Service
@@ -41,7 +55,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: aline-financial-banking
+    role: gateway
   ports:
     - port: 8080
       targetPort: 8080
