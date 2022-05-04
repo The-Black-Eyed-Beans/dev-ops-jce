@@ -1,0 +1,41 @@
+---
+- name: Deploy EC2 instance
+  import_playbook: ./modules/create_ec2.yml
+  vars:
+    host_group_name: "{{ host }}"
+    ec2_name: "JCE-Artifactory-{{ artifactory_version }}"
+
+- name: Allow time for EC2 to spin up
+  hosts: localhost
+  connection: local
+  tasks: 
+    - name: Wait for SSH to be available on "{{ host }}" or 5 minutes
+      local_action:
+        module: wait_for
+        host: "{{ item }}"
+        port: 22
+        delay: 10
+        timeout: 300
+      with_items: "{{ groups[host] }}"
+
+- name: Install Docker
+  import_playbook: ./modules/install_docker.yml
+  vars:
+    host: "{{ host }}"
+    username: "{{ username }}"
+    pem_key: "{{ pem_key }}"
+
+- name: Deploy Artifactory on EC2 instance
+  hosts: "{{ host }}"
+  remote_user: "{{ username }}"
+  vars:
+    ansible_ssh_private_key_file: "{{ pem_key }}"
+    create_ec2: disabled
+    artifactory_version: oss
+
+  tasks:
+  - name: Run Artifactory Docker image
+    become: yes
+    shell: > 
+      docker run --name JCE-Artifactory-"{{ artifactory_version }}" -d -p 8081:8081 -p 8082:8082 
+      docker.bintray.io/jfrog/artifactory-"{{ artifactory_version }}":latest
